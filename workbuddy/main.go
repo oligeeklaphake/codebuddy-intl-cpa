@@ -98,7 +98,6 @@ const (
 	endpointAuthToken    = upstreamBaseCN + "/v2/plugin/auth/token?state="
 	endpointTokenRefresh = upstreamBaseCN + "/v2/plugin/auth/token/refresh"
 	endpointChat         = upstreamBaseCN + "/v2/chat/completions"
-	endpointModels       = upstreamBaseCN + "/console/enterprises/personal/models"
 
 	loginTTL = 5 * time.Minute
 )
@@ -375,8 +374,7 @@ const dynamicModelsCacheTTL = 5 * time.Minute
 
 var dynamicModelsCache struct {
 	sync.RWMutex
-	models  []pluginapi.ModelInfo
-	fetched time.Time
+	entries map[dynamicModelCacheKey]dynamicModelCacheEntry
 }
 
 //
@@ -682,7 +680,10 @@ func handleParseAuth(raw []byte) ([]byte, error) {
 	// By leaving ID empty, CPA falls back to authIDForPath(path) which
 	// derives ID from the file path → always matches the watcher's key.
 	// FileName is also echoed back to avoid rename-based duplicates.
-	ad := toAuthDataOpts(sa, nil, false)
+	ad, err := authDataFromJSON(sa, req.RawJSON)
+	if err != nil {
+		return nil, err
+	}
 	ad.ID = "" // let host compute from path (prevents ID mismatch dupes)
 	if fn := strings.TrimSpace(req.FileName); fn != "" {
 		ad.FileName = fn

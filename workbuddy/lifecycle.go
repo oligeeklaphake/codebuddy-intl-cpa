@@ -83,21 +83,19 @@ func disableAuth(authIndex, authID string, sa *storedAuth, cr *creditsSummary, r
 	if lifecycleStateUnchanged(authID, true, note) {
 		return nil
 	}
-	// Prefer live physical file to preserve any extra fields if present.
+	// Require the live file: rebuilding after a read error would erase CPA settings.
 	phys, err := hostAuthGetPhysical(authIndex)
-	if err == nil && parseDisabledFromAuthJSON(phys.JSON) {
+	if err != nil {
+		return err
+	}
+	if parseDisabledFromAuthJSON(phys.JSON) {
 		// already disabled; still refresh note if needed
 		if lifecycleStateUnchanged(authID, true, note) {
 			return nil
 		}
 	}
-	name := authFileNameFor(sa)
-	path := ""
-	legacyPath := ""
-	if phys != nil {
-		name, path, legacyPath = resolveAuthFileTarget(sa, phys)
-	}
-	raw, err := buildAuthFileJSON(sa, true, note, nil)
+	name, path, legacyPath := resolveAuthFileTarget(sa, phys)
+	raw, err := patchAuthStateJSON(phys.JSON, true, note)
 	if err != nil {
 		return err
 	}
@@ -123,13 +121,11 @@ func reenableAuth(authIndex, authID string, sa *storedAuth, cr *creditsSummary) 
 		return nil
 	}
 	phys, err := hostAuthGetPhysical(authIndex)
-	name := authFileNameFor(sa)
-	path := ""
-	legacyPath := ""
-	if err == nil {
-		name, path, legacyPath = resolveAuthFileTarget(sa, phys)
+	if err != nil {
+		return err
 	}
-	raw, err := buildAuthFileJSON(sa, false, note, nil)
+	name, path, legacyPath := resolveAuthFileTarget(sa, phys)
+	raw, err := patchAuthStateJSON(phys.JSON, false, note)
 	if err != nil {
 		return err
 	}
@@ -170,7 +166,7 @@ func deleteAuth(authIndex, authID string, sa *storedAuth) error {
 	if path == "" {
 		// Last resort: disable instead of silent no-op (never invent a random path).
 		note := displayNote(sa, nil, true) + " · 应删除但无 path"
-		raw, berr := buildAuthFileJSON(sa, true, note, nil)
+		raw, berr := patchAuthStateJSON(phys.JSON, true, note)
 		if berr != nil {
 			return fmt.Errorf("no path and build failed: %w", berr)
 		}
@@ -250,19 +246,17 @@ func syncAuthNote(authIndex, authID string, sa *storedAuth, cr *creditsSummary, 
 	mu.Lock()
 	defer mu.Unlock()
 	phys, err := hostAuthGetPhysical(authIndex)
-	name := authFileNameFor(sa)
-	path := ""
-	legacyPath := ""
-	if err == nil {
-		name, path, legacyPath = resolveAuthFileTarget(sa, phys)
-		// re-read disabled from disk as source of truth
-		disabled = parseDisabledFromAuthJSON(phys.JSON)
-		note = displayNote(sa, cr, disabled)
+	if err != nil {
+		return err
 	}
+	name, path, legacyPath := resolveAuthFileTarget(sa, phys)
+	// Re-read disabled from disk as source of truth.
+	disabled = parseDisabledFromAuthJSON(phys.JSON)
+	note = displayNote(sa, cr, disabled)
 	if lifecycleStateUnchanged(authID, disabled, note) {
 		return nil
 	}
-	raw, err := buildAuthFileJSON(sa, disabled, note, nil)
+	raw, err := patchAuthStateJSON(phys.JSON, disabled, note)
 	if err != nil {
 		return err
 	}

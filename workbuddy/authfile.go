@@ -6,6 +6,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -88,9 +89,12 @@ type hostAuthPhysical struct {
 	Disabled  bool
 }
 
+// Kept separate from the C bridge so auth persistence can be regression tested.
+var authStoreCall = hostCall
+
 func hostAuthGetPhysical(authIndex string) (*hostAuthPhysical, error) {
 	body, _ := json.Marshal(map[string]string{"auth_index": authIndex})
-	raw, err := hostCall(pluginabi.MethodHostAuthGet, body)
+	raw, err := authStoreCall(pluginabi.MethodHostAuthGet, body)
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +158,7 @@ func hostAuthSaveJSON(name string, raw []byte) error {
 		JSON: raw,
 	}
 	saveBody, _ := json.Marshal(saveReq)
-	rawResp, err := hostCall(pluginabi.MethodHostAuthSave, saveBody)
+	rawResp, err := authStoreCall(pluginabi.MethodHostAuthSave, saveBody)
 	if err != nil {
 		return fmt.Errorf("host.auth.save: %w", err)
 	}
@@ -196,6 +200,80 @@ func buildAuthFileJSON(sa *storedAuth, disabled bool, note string, extra map[str
 		out[k] = v
 	}
 	return json.Marshal(out)
+}
+
+// patchAuthJSON preserves unknown fields and JSON numbers exactly. Existing
+// credentials must be patched rather than rebuilt from the provider's schema.
+func patchAuthJSON(raw []byte, updates map[string]any) ([]byte, error) {
+	var doc map[string]json.RawMessage
+	if err := json.Unmarshal(raw, &doc); err != nil {
+		return nil, err
+	}
+	if doc == nil {
+		return nil, fmt.Errorf("auth JSON must be an object")
+	}
+	for key, value := range updates {
+		encoded, err := json.Marshal(value)
+		if err != nil {
+			return nil, err
+		}
+		doc[key] = encoded
+	}
+	return json.Marshal(doc)
+}
+
+func patchAuthStateJSON(raw []byte, disabled bool, note string) ([]byte, error) {
+	return patchAuthJSON(raw, map[string]any{"disabled": disabled, "note": note})
+}
+
+// Refresh only token fields, retaining the original flat/nested file shape,
+// account details, and every CPA-managed setting.
+func patchAuthTokensJSON(raw []byte, sa *storedAuth) ([]byte, error) {
+	if sa == nil {
+		return nil, fmt.Errorf("nil storedAuth")
+	}
+	updates := map[string]any{
+		"accessToken": sa.Auth.AccessToken, "refreshToken": sa.Auth.RefreshToken,
+		"expiresAt": sa.Auth.ExpiresAt, "domain": sa.Auth.Domain,
+	}
+	var doc map[string]json.RawMessage
+	if err := json.Unmarshal(raw, &doc); err != nil {
+		return nil, err
+	}
+	if nested, ok := doc["auth"]; ok {
+		tokens, err := patchAuthJSON(nested, updates)
+		if err != nil {
+			return nil, err
+		}
+		return patchAuthJSON(raw, map[string]any{"auth": json.RawMessage(tokens)})
+	}
+	return patchAuthJSON(raw, updates)
+}
+
+// CPA persists Metadata over StorageJSON. Keep routing settings in Metadata,
+// but leave tokens in StorageJSON so stale metadata cannot undo a refresh.
+func authDataFromJSON(sa *storedAuth, raw []byte) (pluginapi.AuthData, error) {
+	ad := toAuthDataOpts(sa, nil, parseDisabledFromAuthJSON(raw))
+	var doc map[string]any
+	decoder := json.NewDecoder(bytes.NewReader(raw))
+	decoder.UseNumber()
+	if err := decoder.Decode(&doc); err != nil {
+		return ad, err
+	}
+	if doc == nil {
+		return ad, fmt.Errorf("auth JSON must be an object")
+	}
+	for key, value := range doc {
+		switch key {
+		case "auth", "account", "accessToken", "refreshToken", "expiresAt", "domain", "uid", "enterpriseId", "nickname":
+			continue
+		}
+		ad.Metadata[key] = value
+	}
+	ad.StorageJSON = append([]byte(nil), raw...)
+	ad.Prefix, _ = doc["prefix"].(string)
+	ad.ProxyURL, _ = doc["proxy_url"].(string)
+	return ad, nil
 }
 
 // parseDisabledFromAuthJSON reads top-level disabled from physical auth JSON.

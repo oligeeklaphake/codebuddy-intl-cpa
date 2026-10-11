@@ -201,7 +201,11 @@ func handleRefreshAuth(raw []byte) ([]byte, error) {
 	// refreshed credential itself after Refresh returns (conductor.go
 	// refreshAuth → m.Update → persist). Writing from the plugin too would
 	// double-write the file.
-	return okEnvelope(pluginapi.AuthRefreshResponse{Auth: toAuthDataForRefresh(sa)})
+	ad, err := toAuthDataForRefresh(sa, req)
+	if err != nil {
+		return nil, err
+	}
+	return okEnvelope(pluginapi.AuthRefreshResponse{Auth: ad})
 }
 
 // preserveExpiry reuses the previous token's expiresAt when the refresh
@@ -224,9 +228,23 @@ func preserveExpiry(newExpiry, oldExpiry int64) int64 {
 // NEW file, and the old one stays → duplicate auth records.
 //
 // Returning empty FileName = "keep what you had" → no rename, no dup.
-func toAuthDataForRefresh(sa *storedAuth) pluginapi.AuthData {
-	ad := toAuthDataOpts(sa, nil, false)
+func toAuthDataForRefresh(sa *storedAuth, req pluginapi.AuthRefreshRequest) (pluginapi.AuthData, error) {
+	// Host metadata is authoritative for mutable CPA settings. Merge it before
+	// patching tokens so credential fields in metadata cannot restore old tokens.
+	storage, err := patchAuthJSON(req.StorageJSON, req.Metadata)
+	if err != nil {
+		return pluginapi.AuthData{}, err
+	}
+	storage, err = patchAuthTokensJSON(storage, sa)
+	if err != nil {
+		return pluginapi.AuthData{}, err
+	}
+	ad, err := authDataFromJSON(sa, storage)
+	if err != nil {
+		return pluginapi.AuthData{}, err
+	}
 	ad.FileName = "" // let host backfill original
 	ad.ID = ""       // let host compute from path (prevents ID mismatch dupes)
-	return ad
+	ad.Attributes = req.Attributes
+	return ad, nil
 }

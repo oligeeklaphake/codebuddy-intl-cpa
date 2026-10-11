@@ -6,11 +6,13 @@ package main
 
 import (
 	"context"
+	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/router-for-me/CLIProxyAPI/v7/sdk/pluginapi"
@@ -44,62 +46,110 @@ func wbModels() []pluginapi.ModelInfo {
 	}
 }
 
-func cachedDynamicModels() ([]pluginapi.ModelInfo, bool) {
+type dynamicModelCacheKey struct {
+	gateway      string
+	uid          string
+	enterpriseID string
+	tokenHash    [32]byte
+}
+
+type dynamicModelCacheEntry struct {
+	models  []pluginapi.ModelInfo
+	fetched time.Time
+}
+
+type dynamicModelCall struct {
+	done   chan struct{}
+	models []pluginapi.ModelInfo
+}
+
+var dynamicModelFlights sync.Map // dynamicModelCacheKey -> *dynamicModelCall
+
+func modelCacheKey(sa *storedAuth) dynamicModelCacheKey {
+	return dynamicModelCacheKey{
+		gateway: endpointModelsFor(sa), uid: sa.Account.UID,
+		enterpriseID: sa.Account.EnterpriseID,
+		tokenHash:    sha256.Sum256([]byte(sa.Auth.AccessToken)),
+	}
+}
+
+func cachedDynamicModels(key dynamicModelCacheKey) ([]pluginapi.ModelInfo, bool) {
 	dynamicModelsCache.RLock()
 	defer dynamicModelsCache.RUnlock()
-	if len(dynamicModelsCache.models) > 0 && time.Since(dynamicModelsCache.fetched) < dynamicModelsCacheTTL {
-		return dynamicModelsCache.models, true
+	entry, ok := dynamicModelsCache.entries[key]
+	if ok && len(entry.models) > 0 && time.Since(entry.fetched) < dynamicModelsCacheTTL {
+		return append([]pluginapi.ModelInfo(nil), entry.models...), true
 	}
 	return nil, false
 }
 
-func storeDynamicModels(models []pluginapi.ModelInfo) {
+func storeDynamicModels(key dynamicModelCacheKey, models []pluginapi.ModelInfo) {
 	dynamicModelsCache.Lock()
-	dynamicModelsCache.models = models
-	dynamicModelsCache.fetched = time.Now()
-	dynamicModelsCache.Unlock()
-}
-
-func fetchDynamicModelsFromStorage(storageJSON []byte) []pluginapi.ModelInfo {
-	if models, ok := cachedDynamicModels(); ok {
-		return models
+	defer dynamicModelsCache.Unlock()
+	if dynamicModelsCache.entries == nil {
+		dynamicModelsCache.entries = make(map[dynamicModelCacheKey]dynamicModelCacheEntry)
 	}
-	accessToken := ""
-	if len(storageJSON) > 0 {
-		if tok, ok := extractAccessToken(storageJSON); ok {
-			accessToken = tok
+	now := time.Now()
+	// Expire obsolete token entries and bound memory under account/token churn.
+	for cachedKey, entry := range dynamicModelsCache.entries {
+		if now.Sub(entry.fetched) >= dynamicModelsCacheTTL {
+			delete(dynamicModelsCache.entries, cachedKey)
 		}
 	}
-	if accessToken == "" {
+	if _, exists := dynamicModelsCache.entries[key]; !exists && len(dynamicModelsCache.entries) >= 256 {
+		var oldestKey dynamicModelCacheKey
+		var oldest time.Time
+		for cachedKey, entry := range dynamicModelsCache.entries {
+			if oldest.IsZero() || entry.fetched.Before(oldest) {
+				oldestKey, oldest = cachedKey, entry.fetched
+			}
+		}
+		delete(dynamicModelsCache.entries, oldestKey)
+	}
+	dynamicModelsCache.entries[key] = dynamicModelCacheEntry{
+		models: append([]pluginapi.ModelInfo(nil), models...), fetched: now,
+	}
+}
+
+func fetchDynamicModelsFromStorage(storageJSON []byte) (models []pluginapi.ModelInfo) {
+	// Resolve this credential before looking up the cache. A token-less or
+	// malformed credential must never inherit another account's model list.
+	sa, err := parseStored(storageJSON)
+	if err != nil {
 		return wbModels()
 	}
-	if dyn, err := callModelsAPI(accessToken); err == nil && len(dyn) > 0 {
-		storeDynamicModels(dyn)
+	// Legacy files may omit domain. Use the JWT issuer only as a fallback;
+	// opaque tokens still route correctly when the credential declares domain.
+	if strings.TrimSpace(sa.Auth.Domain) == "" && isGlobalToken(sa.Auth.AccessToken) {
+		sa.Auth.Domain = "www.codebuddy.ai"
+	}
+	key := modelCacheKey(sa)
+	if cached, ok := cachedDynamicModels(key); ok {
+		return cached
+	}
+	call := &dynamicModelCall{done: make(chan struct{})}
+	actual, loaded := dynamicModelFlights.LoadOrStore(key, call)
+	if loaded {
+		other := actual.(*dynamicModelCall)
+		<-other.done
+		return append([]pluginapi.ModelInfo(nil), other.models...)
+	}
+	defer func() {
+		call.models = models
+		close(call.done)
+		dynamicModelFlights.Delete(key)
+	}()
+	if cached, ok := cachedDynamicModels(key); ok {
+		return cached
+	}
+	if dyn, err := callModelsAPI(sa); err == nil && len(dyn) > 0 {
+		storeDynamicModels(key, dyn)
 		return dyn
 	}
 	return wbModels()
 }
 
-// fetchDynamicModels calls the CodeBuddy API to get the latest model list.
-// Falls back to the hardcoded list on any error.
-// extractAccessToken handles both flat (CPA UI) and nested (plugin OAuth) auth file shapes.
-func extractAccessToken(raw []byte) (string, bool) {
-	// flat shape from CPA-Manager-Plus UI
-	var flat struct {
-		AccessToken string `json:"accessToken"`
-	}
-	if err := json.Unmarshal(raw, &flat); err == nil && strings.TrimSpace(flat.AccessToken) != "" {
-		return flat.AccessToken, true
-	}
-	// nested shape from plugin OAuth
-	var nested storedAuth
-	if err := json.Unmarshal(raw, &nested); err == nil && strings.TrimSpace(nested.Auth.AccessToken) != "" {
-		return nested.Auth.AccessToken, true
-	}
-	return "", false
-}
-
-// realmFromToken decodes the JWT iss claim to determine the account realm.
+// isGlobalToken decodes the JWT iss claim to determine the account realm.
 // Global tokens have iss=...workbuddy.ai...; CN tokens have iss=...codebuddy.cn...
 // Returns true if the token is Global.
 func isGlobalToken(accessToken string) bool {
@@ -128,23 +178,16 @@ func isGlobalToken(accessToken string) bool {
 // callModelsAPI GETs /console/enterprises/personal/models from the upstream.
 // Uses the shared client (connection pooling) with a per-request 15s budget;
 // the shared client's own 120s timeout stays as the outer bound.
-func callModelsAPI(accessToken string) ([]pluginapi.ModelInfo, error) {
+func callModelsAPI(sa *storedAuth) ([]pluginapi.ModelInfo, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-	// Model discovery is per-realm: Global tokens must query workbuddy.ai,
-	// not copilot.tencent.com (which 500s for Global tokens). Decode JWT iss.
-	isGlobal := isGlobalToken(accessToken)
-	modelsURL := endpointModels
-	origin := originReferer
-	if isGlobal {
-		modelsURL = upstreamBaseGlobal + "/console/enterprises/personal/models"
-		origin = originRefererGlobal
-	}
+	modelsURL := endpointModelsFor(sa)
+	origin := originRefererFor(sa)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, modelsURL, nil)
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("Authorization", "Bearer "+accessToken)
+	req.Header.Set("Authorization", "Bearer "+sa.Auth.AccessToken)
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Origin", origin)
 	req.Header.Set("Referer", origin+"/")

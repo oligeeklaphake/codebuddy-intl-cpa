@@ -116,7 +116,10 @@ func TestToAuthDataForRefresh_EmptyFileNameAndID(t *testing.T) {
 		Auth:    storedTokens{AccessToken: "a", RefreshToken: "r", Domain: "www.codebuddy.cn"},
 		Account: storedAccount{UID: "u-1", Nickname: "n"},
 	}
-	ad := toAuthDataForRefresh(sa)
+	ad, err := toAuthDataForRefresh(sa, pluginapi.AuthRefreshRequest{StorageJSON: sampleNestedAuthJSON("u-1")})
+	if err != nil {
+		t.Fatal(err)
+	}
 	if ad.FileName != "" {
 		t.Fatalf("FileName=%q want empty", ad.FileName)
 	}

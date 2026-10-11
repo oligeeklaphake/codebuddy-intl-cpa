@@ -150,6 +150,9 @@ func refreshOneAuth(authIndex, authID string) (string, error) {
 // The host's file watcher reloads it; we deliberately do NOT dual-write the
 // physical path (same rule as hostAuthPersist).
 func persistAuthTokens(authIndex string, sa *storedAuth) error {
+	mu := checkinLockFor(authIndex)
+	mu.Lock()
+	defer mu.Unlock()
 	phys, err := hostAuthGetPhysical(authIndex)
 	if err != nil {
 		return err
@@ -158,7 +161,7 @@ func persistAuthTokens(authIndex string, sa *storedAuth) error {
 	if name == "" {
 		name = authFileNameFor(sa)
 	}
-	raw, err := json.Marshal(sa)
+	raw, err := patchAuthTokensJSON(phys.JSON, sa)
 	if err != nil {
 		return err
 	}
@@ -170,6 +173,9 @@ func persistAuthTokens(authIndex string, sa *storedAuth) error {
 // the reason so the panel can surface "session dead, re-login required"
 // without needing a custom [SESSION-DEAD] marker.
 func markSessionDead(authIndex, authID string, sa *storedAuth) error {
+	mu := checkinLockFor(authIndex)
+	mu.Lock()
+	defer mu.Unlock()
 	phys, err := hostAuthGetPhysical(authIndex)
 	if err != nil {
 		return err
@@ -177,13 +183,7 @@ func markSessionDead(authIndex, authID string, sa *storedAuth) error {
 	if phys.Disabled {
 		return nil // already disabled; nothing to do
 	}
-	var doc map[string]any
-	if err := json.Unmarshal(phys.JSON, &doc); err != nil {
-		return err
-	}
-	doc["disabled"] = true
-	doc["note"] = "Session dead (12153): re-login required"
-	raw, err := json.Marshal(doc)
+	raw, err := patchAuthStateJSON(phys.JSON, true, "Session dead (12153): re-login required")
 	if err != nil {
 		return err
 	}

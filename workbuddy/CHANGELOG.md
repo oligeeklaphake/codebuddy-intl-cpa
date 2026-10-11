@@ -1,5 +1,24 @@
 # Changelog
 
+## Unreleased
+
+### Fix model discovery across CN and Global credentials
+
+- Cache dynamic model lists separately for each gateway, account, enterprise,
+  and token instead of sharing the first account's result across all auths.
+- Query the gateway declared by the credential, falling back to the JWT issuer
+  for legacy files without a domain. Deduplicate concurrent queries per auth,
+  expire old entries, and retain the existing fallback on discovery failures.
+
+### Fix CPA credential settings being reset
+
+- Lifecycle note/disabled updates now patch the current auth file, retaining
+  per-account `excluded_models`, routing settings, and unknown fields. Failed
+  reads no longer fall back to overwriting the credential from partial data.
+- Keepalive refresh updates only token fields and retains flat/nested storage.
+- Auth parsing and OAuth refresh preserve CPA metadata, disabled state, model
+  prefixes, and proxy settings instead of returning default credential settings.
+
 ## 0.8.2
 
 ### Concurrency + lifecycle hardening
