@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CodeBuddy Accounts Panel</title>
+<title>CodeBuddy 账号管理</title>
 <style>
 /* Theme tokens aligned with CPA management panel (key-policy / themes.scss):
    default :root = light (paper); data-theme=white | dark; embedded iframe syncs parent. */
@@ -45,6 +45,7 @@
 }
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 -apple-system,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif}
 .wrap{max-width:1100px;margin:0 auto;padding:24px 16px}
+.panel-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:4px}.language-control{display:flex;gap:8px;align-items:center;color:var(--mut);font-size:13px}.language-control select{background:var(--input-bg);color:var(--fg);border:1px solid var(--border);border-radius:8px;padding:6px 8px;font:inherit}
 h1{font-size:20px;margin:0 0 4px}.sub{color:var(--mut);font-size:13px;margin-bottom:20px}
 .bar{display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
 button{background:var(--acc);color:var(--on-acc);border:0;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:13px}
@@ -200,50 +201,50 @@ button .spin{border-color:var(--on-acc);border-top-color:transparent}
 </head>
 <body>
 <div class="wrap">
-  <h1>CodeBuddy Accounts Panel</h1>
-  <div class="sub">Credit balance · CN daily check-in (09:00/21:00) · Global expert pack one-time manual claim · auto disable/delete on exhaustion</div>
+  <div class="panel-heading"><h1><span data-i18n="CodeBuddy 账号管理">CodeBuddy 账号管理</span></h1><label class="language-control"><span data-i18n="界面语言">界面语言</span><select id="panelLanguage" aria-label="界面语言" data-i18n-aria-label="界面语言"><option value="zh-CN">中文</option><option value="en">English</option></select></label></div>
+  <div class="sub"><span data-i18n="积分余额 · 国内账号每日签到（09:00/21:00）· 国际账号每日奖励 · 国际账号专家体验包限领一次 · 积分耗尽后自动禁用/删除">积分余额 · 国内账号每日签到（09:00/21:00）· 国际账号每日奖励 · 国际账号专家体验包限领一次 · 积分耗尽后自动禁用/删除</span></div>
   <div id="authBox" class="card" style="display:none;margin-bottom:16px">
-    <div style="margin-bottom:8px;color:var(--mut)">A management key is required to access account data. When embedded from the CPA main panel it is picked up automatically. Do not click repeatedly with a wrong key to avoid an IP ban.</div>
+    <div style="margin-bottom:8px;color:var(--mut)"><span data-i18n="访问账号数据需要管理密钥。从 CPA 主面板打开时会自动获取密钥。请勿使用错误密钥反复尝试，以免 IP 被封禁。">访问账号数据需要管理密钥。从 CPA 主面板打开时会自动获取密钥。请勿使用错误密钥反复尝试，以免 IP 被封禁。</span></div>
     <div style="display:flex;gap:8px">
-      <input id="keyInput" type="password" placeholder="management key" class="field-input">
-      <button onclick="saveKey()">Connect</button>
+      <input id="keyInput" type="password" placeholder="请输入管理密钥" data-i18n-placeholder="请输入管理密钥" class="field-input">
+      <button onclick="saveKey()"><span data-i18n="连接">连接</span></button>
     </div>
   </div>
   <div class="bar">
-    <button class="sec" id="importBtn" onclick="openImportModal()">Import Credential</button>
-    <button id="refreshBtn" onclick="load(true,this)">Refresh Data</button>
-    <button class="sec" onclick="checkinAll(this)">Check-in All</button>
-    <button class="sec" onclick="claimTrialAll(this)" title="Global only · one-time">Claim All</button>
-    <label class="toggle" title="CN accounts only, 09:00 / 21:00"><input type="checkbox" id="autoToggle" onchange="toggleAuto(this.checked)"> Auto check-in (CN)</label>
-    <label class="toggle" title="Global accounts, 4× daily (08:00/12:00/16:00/20:00) — each lit day earns a 30-credit Bonus Pack"><input type="checkbox" id="bonusToggle" onchange="toggleBonus(this.checked)"> Daily bonus (Global)</label>
+    <button class="sec" id="importBtn" onclick="openImportModal()"><span data-i18n="导入凭据">导入凭据</span></button>
+    <button id="refreshBtn" onclick="load(true,this)"><span data-i18n="刷新数据">刷新数据</span></button>
+    <button class="sec" onclick="checkinAll(this)"><span data-i18n="全部签到">全部签到</span></button>
+    <button class="sec" onclick="claimTrialAll(this)" title="仅限国际账号 · 每个账号限领一次" data-i18n-title="仅限国际账号 · 每个账号限领一次"><span data-i18n="全部领取">全部领取</span></button>
+    <label class="toggle" title="仅限国内账号，每日 09:00 / 21:00 自动签到" data-i18n-title="仅限国内账号，每日 09:00 / 21:00 自动签到"><input type="checkbox" id="autoToggle" onchange="toggleAuto(this.checked)"> <span data-i18n="自动签到（国内）">自动签到（国内）</span></label>
+    <label class="toggle" title="国际账号每日运行 4 次（08:00/12:00/16:00/20:00），点亮活跃日后次日可获得 30 积分奖励包" data-i18n-title="国际账号每日运行 4 次（08:00/12:00/16:00/20:00），点亮活跃日后次日可获得 30 积分奖励包"><input type="checkbox" id="bonusToggle" onchange="toggleBonus(this.checked)"> <span data-i18n="每日奖励（国际）">每日奖励（国际）</span></label>
     <span class="toggle" id="svtime"></span>
   </div>
   <div class="filter-bar" id="filterBar">
-    <button type="button" class="ftag active" data-region="all" onclick="filterRegion('all',this)">All <span class="cnt" id="cntAll">0</span></button>
-    <button type="button" class="ftag" data-region="cn" onclick="filterRegion('cn',this)">CN <span class="cnt" id="cntCn">0</span></button>
-    <button type="button" class="ftag" data-region="global" onclick="filterRegion('global',this)">Global <span class="cnt" id="cntGlobal">0</span></button>
-    <button type="button" class="ftag" data-region="exhausted" onclick="filterRegion('exhausted',this)">Exhausted <span class="cnt" id="cntExhausted">0</span></button>
+    <button type="button" class="ftag active" data-region="all" onclick="filterRegion('all',this)"><span data-i18n="全部">全部</span> <span class="cnt" id="cntAll">0</span></button>
+    <button type="button" class="ftag" data-region="cn" onclick="filterRegion('cn',this)"><span data-i18n="国内">国内</span> <span class="cnt" id="cntCn">0</span></button>
+    <button type="button" class="ftag" data-region="global" onclick="filterRegion('global',this)"><span data-i18n="国际">国际</span> <span class="cnt" id="cntGlobal">0</span></button>
+    <button type="button" class="ftag" data-region="exhausted" onclick="filterRegion('exhausted',this)"><span data-i18n="已耗尽">已耗尽</span> <span class="cnt" id="cntExhausted">0</span></button>
   </div>
   <div class="summary card" id="summaryBox" style="display:none"></div>
-  <div id="grid" class="grid"><div class="loading">Loading…</div></div>
+  <div id="grid" class="grid"><div class="loading"><span data-i18n="加载中…">加载中…</span></div></div>
   <section class="usage-sec" id="usageSec">
     <div class="card">
       <div class="usage-hd">
-        <div class="summary-title">Usage CodeBuddy</div>
-        <div class="usage-grid" id="usageSummaryBox"><div class="usage-item"><div class="k">Today credit</div><div class="v">-</div></div><div class="usage-item"><div class="k">Today requests</div><div class="v">-</div></div><div class="usage-item"><div class="k">Total credit</div><div class="v">-</div></div></div>
+        <div class="summary-title"><span data-i18n="CodeBuddy 用量记录">CodeBuddy 用量记录</span></div>
+        <div class="usage-grid" id="usageSummaryBox"><div class="usage-item"><div class="k"><span data-i18n="今日消耗积分">今日消耗积分</span></div><div class="v">-</div></div><div class="usage-item"><div class="k"><span data-i18n="今日请求数">今日请求数</span></div><div class="v">-</div></div><div class="usage-item"><div class="k"><span data-i18n="累计消耗积分">累计消耗积分</span></div><div class="v">-</div></div></div>
       </div>
       <div class="usage-filters" id="usageFilters">
-        <button type="button" class="ftag active" data-range="today" onclick="setUsageRange('today',this)">Today</button>
-        <button type="button" class="ftag" data-range="yesterday" onclick="setUsageRange('yesterday',this)">Yesterday</button>
-        <button type="button" class="ftag" data-range="7d" onclick="setUsageRange('7d',this)">7 days</button>
-        <button type="button" class="ftag" data-range="custom" onclick="setUsageRange('custom',this)">Custom</button>
+        <button type="button" class="ftag active" data-range="today" onclick="setUsageRange('today',this)"><span data-i18n="今天">今天</span></button>
+        <button type="button" class="ftag" data-range="yesterday" onclick="setUsageRange('yesterday',this)"><span data-i18n="昨天">昨天</span></button>
+        <button type="button" class="ftag" data-range="7d" onclick="setUsageRange('7d',this)"><span data-i18n="近 7 天">近 7 天</span></button>
+        <button type="button" class="ftag" data-range="custom" onclick="setUsageRange('custom',this)"><span data-i18n="自定义">自定义</span></button>
         <select id="usageAcct" onchange="usageParams.account=this.value;loadUsage()"></select>
         <span class="sp" id="usageRangeLabel"></span>
       </div>
       <div class="tbl-wrap">
         <table class="utbl">
-          <thead><tr><th>Time</th><th>Account</th><th>Model</th><th class="num">In</th><th class="num">Out</th><th class="num">Cache R/W</th><th class="num">Total</th><th class="num">Credit</th></tr></thead>
-          <tbody id="usageBody"><tr><td colspan="8"><div class="usage-loading">Loading usage…</div></td></tr></tbody>
+          <thead><tr><th><span data-i18n="时间">时间</span></th><th><span data-i18n="账号">账号</span></th><th><span data-i18n="模型">模型</span></th><th class="num"><span data-i18n="输入 Token">输入 Token</span></th><th class="num"><span data-i18n="输出 Token">输出 Token</span></th><th class="num"><span data-i18n="缓存读/写 Token">缓存读/写 Token</span></th><th class="num"><span data-i18n="总 Token">总 Token</span></th><th class="num"><span data-i18n="消耗积分">消耗积分</span></th></tr></thead>
+          <tbody id="usageBody"><tr><td colspan="8"><div class="usage-loading"><span data-i18n="正在加载用量…">正在加载用量…</span></div></td></tr></tbody>
         </table>
       </div>
       <div class="usage-meta" id="usageMeta"></div>
@@ -253,22 +254,255 @@ button .spin{border-color:var(--on-acc);border-top-color:transparent}
 <div class="modal-mask" id="importModal" onclick="onImportMaskClick(event)">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="importModalTitle">
     <div class="modal-hd">
-      <h2 id="importModalTitle">Import Credential JSON</h2>
-      <button type="button" class="modal-x" onclick="closeImportModal()" aria-label="Close">×</button>
+      <h2 id="importModalTitle"><span data-i18n="导入账号凭据 JSON">导入账号凭据 JSON</span></h2>
+      <button type="button" class="modal-x" onclick="closeImportModal()" aria-label="关闭" data-i18n-aria-label="关闭">×</button>
     </div>
     <div class="modal-bd">
-      <p class="hint">Accepts nested <code>{"auth":{...},"account":{...}}</code> or flat <code>{"accessToken":...}</code>. Saved as <code>workbuddy-&lt;uid&gt;.json</code>.</p>
-      <textarea id="importRaw" rows="8" placeholder='Paste CodeBuddy credential JSON'></textarea>
+      <p class="hint"><span data-i18n="支持嵌套格式">支持嵌套格式</span> <code>{"auth":{...},"account":{...}}</code> <span data-i18n="或扁平格式">或扁平格式</span> <code>{"accessToken":...}</code><span data-i18n="，保存为">，保存为</span> <code>workbuddy-&lt;uid&gt;.json</code><span data-i18n="。">。</span></p>
+      <textarea id="importRaw" rows="8" placeholder='请粘贴 CodeBuddy 账号凭据 JSON' data-i18n-placeholder='请粘贴 CodeBuddy 账号凭据 JSON'></textarea>
     </div>
     <div class="modal-ft">
-      <button type="button" class="sec" onclick="closeImportModal()">Cancel</button>
-      <button type="button" onclick="importAuth(this)">Import &amp; Save</button>
+      <button type="button" class="sec" onclick="closeImportModal()"><span data-i18n="取消">取消</span></button>
+      <button type="button" onclick="importAuth(this)"><span data-i18n="导入并保存">导入并保存</span></button>
     </div>
   </div>
 </div>
 <div class="toasts" id="toasts"></div>
 <script>
 const API = "/v0/management/plugins/workbuddy";
+
+// Authored UI messages only: data values and API identifiers are never translated.
+const PANEL_LANGUAGE_KEY = "workbuddy-panel-language";
+const PANEL_EN = {
+  "<span class=\"spin\"></span>处理中…": "<span class=\"spin\"></span>Processing…",
+  "已签到": "Checked in",
+  "已领取": "Claimed",
+  " 剩余 / 共 ": " left / ",
+  " 积分": " credits",
+  "<div class=\"pb\"><div class=\"pb-label\"><span>积分</span><span class=\"spin\"></span>加载中…</span></div><div class=\"pb-track\"><div class=\"pb-bar\" style=\"width:0%\"></div></div></div>": "<div class=\"pb\"><div class=\"pb-label\"><span>Credits</span><span class=\"spin\"></span>Loading…</span></div><div class=\"pb-track\"><div class=\"pb-bar\" style=\"width:0%\"></div></div></div>",
+  " · 数据时间 ": " · snapshot ",
+  " 个积分包": " packs",
+  "<div class=\"pb\"><div class=\"pb-label\"><span>可用 ": "<div class=\"pb\"><div class=\"pb-label\"><span>Available ",
+  "</span><span>已用 ": "</span><span>Used ",
+  "\"></div></div><div class=\"pb-meta\">剩余 ": "\"></div></div><div class=\"pb-meta\">Remaining ",
+  " · 已用 ": " · Used ",
+  " · 总额度 ": " · Pool ",
+  "国际": "Global",
+  "国内": "CN",
+  "<button class=\"done\" disabled=\"disabled\">已领取</button>": "<button class=\"done\" disabled=\"disabled\">Claimed</button>",
+  "\">领取专家体验包</button>": "\">Claim Expert Pack</button>",
+  "签到": "Check-in",
+  "<button class=\"done\" disabled=\"disabled\">使用中</button>": "<button class=\"done\" disabled=\"disabled\">In Use</button>",
+  "\">选择账号</button>": "\">Select</button>",
+  "\" title=\"刷新积分\">刷新</button>": "\" title=\"Refresh credits\">Refresh</button>",
+  "<span class=\"badge\" style=\"background:var(--acc-ring);color:var(--acc);border-color:var(--acc)\">使用中</span>": "<span class=\"badge\" style=\"background:var(--acc-ring);color:var(--acc);border-color:var(--acc)\">In Use</span>",
+  "<span class=\"badge disabled\">已禁用</span>": "<span class=\"badge disabled\">Disabled</span>",
+  "<span class=\"badge exhausted\">已耗尽</span>": "<span class=\"badge exhausted\">Exhausted</span>",
+  "<div class=\"row\"><span class=\"k\">错误</span><span class=\"v err\">": "<div class=\"row\"><span class=\"k\">Error</span><span class=\"v err\">",
+  "加载积分失败": "Failed to load credits",
+  "\n    <div class=\"pb-meta\" style=\"margin-top:10px\">按地区：国内可用 ": "\n    <div class=\"pb-meta\" style=\"margin-top:10px\">By region: CN available ",
+  " / 已用 ": " / used ",
+  " · 国际可用 ": " · Global available ",
+  "\n    <div class=\"pb-meta\" style=\"margin-top:10px\">全部账号：可用 ": "\n    <div class=\"pb-meta\" style=\"margin-top:10px\">All account pools: available ",
+  "\n    <div class=\"summary-hd\">\n      <div class=\"summary-title\">积分用量汇总 · ": "\n    <div class=\"summary-hd\">\n      <div class=\"summary-title\">Usage Summary · ",
+  " 个账号 · 已获取数据 ": " accounts · with data ",
+  " 个 · 已禁用 ": " · disabled ",
+  " 个 · 已耗尽 ": " · exhausted ",
+  " 个</div>\n    </div>\n    <div class=\"summary-grid\">\n      <div class=\"summary-item\"><div class=\"k\">剩余积分（可用）</div><div class=\"v ok\">": "</div>\n    </div>\n    <div class=\"summary-grid\">\n      <div class=\"summary-item\"><div class=\"k\">Remaining (available)</div><div class=\"v ok\">",
+  "</div></div>\n      <div class=\"summary-item\"><div class=\"k\">已用积分（消耗）</div><div class=\"v ": "</div></div>\n      <div class=\"summary-item\"><div class=\"k\">Used (consumed)</div><div class=\"v ",
+  "</div></div>\n      <div class=\"summary-item\"><div class=\"k\">积分总额度</div><div class=\"v\">": "</div></div>\n      <div class=\"summary-item\"><div class=\"k\">Credit Pool</div><div class=\"v\">",
+  "</div></div>\n      <div class=\"summary-item\"><div class=\"k\">已用比例</div><div class=\"v ": "</div></div>\n      <div class=\"summary-item\"><div class=\"k\">Used %</div><div class=\"v ",
+  "</div></div>\n    </div>\n    <div class=\"pb\">\n      <div class=\"pb-label\"><span>消耗进度（已用 / 总额度）</span><span>": "</div></div>\n    </div>\n    <div class=\"pb\">\n      <div class=\"pb-label\"><span>Spend progress (used / pool)</span><span>",
+  "\"></div></div>\n      <div class=\"pb-meta\">可用 ": "\"></div></div>\n      <div class=\"pb-meta\">Available ",
+  "（签到会增加总额度和可用积分，不代表没有消耗）</div>\n    </div>\n    ": " (check-ins raise pool &amp; available, not equal to no spend)</div>\n    </div>\n    ",
+  "请先输入管理密钥": "Management key required",
+  "验证多次失败，请稍后再试，以免 IP 被封禁": "Multiple auth failures, try again later (anti IP-ban)",
+  "验证多次失败，请检查管理密钥并在 60 秒后重试": "Multiple auth failures, check management key and retry in 60s",
+  "管理密钥无效或未提供": "Invalid or missing management key",
+  "IP 已被封禁，请稍后再试": "IP banned, try again later",
+  "无权访问（403）": "Forbidden (403)",
+  "<div class=\"loading\">请先输入管理密钥</div>": "<div class=\"loading\">Please enter the management key first</div>",
+  "服务器时间 ": "Server time ",
+  "刷新失败": "Refresh failed",
+  "<div class=\"loading\">暂无 CodeBuddy 账号</div>": "<div class=\"loading\">No CodeBuddy accounts</div>",
+  "数据已刷新": "Data refreshed",
+  "暂无 CodeBuddy 账号": "No CodeBuddy accounts",
+  " 个账号": " accounts",
+  " 个账号出错": " with errors",
+  " · 自动状态处理 ": " · lifecycle ",
+  " 项": " items",
+  "账号": "Account",
+  "：签到失败": "：check-in failed",
+  "：国际账号无需签到": "：Global doesn't need check-in",
+  "可领取专家体验包": "Use Claim Expert Pack instead",
+  "：今日已签到": "：Already checked in today",
+  "：签到成功": "：Check-in successful",
+  " 积分 · 连续签到 ": " credits · streak ",
+  " 天": " days",
+  "未知结果": "Unknown",
+  "签到请求失败": "Check-in request failed",
+  "选择账号失败": "Select failed",
+  "已选择账号": "Selected",
+  "未知错误": "unknown",
+  "积分已刷新": "Credits refreshed",
+  " · 剩余积分 ": " · remaining ",
+  "已跳过国际账号 ": "Skipped Global ",
+  "今日已签到 ": "Already checked in ",
+  "待签到 ": "Pending ",
+  "批量签到失败": "Bulk check-in failed",
+  "批量签到：": "Bulk check-in: ",
+  " 个成功 / ": " ok / ",
+  " 个失败": " failed",
+  " 个已完成": " already",
+  " 个成功": " ok",
+  "无需签到": "Nothing to check in",
+  "国内账号今日已签到 · 已跳过国际账号": "CN checked today · Global skipped",
+  "没有需要签到的国内账号": "No CN accounts need check-in",
+  "国际账号无需签到": "Global accounts don't check in",
+  "没有需要签到的账号": "No accounts need check-in",
+  "领取失败": "Claim failed",
+  "：已领取过": "：Already claimed",
+  "：领取成功": "：Claimed",
+  "+250 积分 · 有效期 14 天": "+250 credits · 14 days",
+  "领取请求失败": "Claim request failed",
+  "没有可领取的账号": "No accounts to claim",
+  "批量领取：": "Bulk claim: ",
+  " 个已领取 / ": " already / ",
+  "所有账号均已领取": "All accounts already claimed",
+  "批量领取失败": "Bulk claim failed",
+  "自动签到": "Auto check-in ",
+  "已开启 ✅": "enabled ✅",
+  "已关闭 ⏸": "disabled ⏸",
+  "设置失败": "Settings failed",
+  "每日奖励": "Daily bonus ",
+  "请先粘贴账号凭据 JSON": "Please paste credential JSON",
+  "导入成功": "Import success",
+  "导入失败": "Import failed",
+  "导入请求失败": "Import request failed",
+  "最早记录": "earliest",
+  "现在": "now",
+  "近 7 天（自 ": "last 7 days (from ",
+  " 起）": ")",
+  "（今天）": " (today)",
+  "开始日期（YYYY-MM-DD），留空表示最早记录": "From (YYYY-MM-DD), empty = earliest",
+  "结束日期（YYYY-MM-DD），留空表示现在": "To (YYYY-MM-DD), empty = now",
+  " 消耗积分</div><div class=\"v warn\">": " credit</div><div class=\"v warn\">",
+  "</div></div><div class=\"usage-item\"><div class=\"k\">请求数</div><div class=\"v\">": "</div></div><div class=\"usage-item\"><div class=\"k\">Requests</div><div class=\"v\">",
+  "</div></div><div class=\"usage-item\"><div class=\"k\">累计消耗积分</div><div class=\"v\">": "</div></div><div class=\"usage-item\"><div class=\"k\">All-time credit</div><div class=\"v\">",
+  "<tr><td colspan=\"8\"><div class=\"usage-loading\">此时间范围内暂无请求</div></td></tr>": "<tr><td colspan=\"8\"><div class=\"usage-loading\">No requests in this range</div></td></tr>",
+  "<span class=\"badge exhausted\" style=\"margin-left:6px\">失败</span>": "<span class=\"badge exhausted\" style=\"margin-left:6px\">fail</span>",
+  "显示 ": "Showing ",
+  " 条 / 共 ": " of ",
+  " 条 · ": " · ",
+  "已显示记录消耗积分 ": "credit in range ",
+  " · 成功请求数 ": " · requests ",
+  " · 最近请求 ": " · last ",
+  "<tr><td colspan=\"8\"><div class=\"usage-loading\">无法加载用量：": "<tr><td colspan=\"8\"><div class=\"usage-loading\">Usage unavailable: ",
+  "<option value=\"\">全部账号</option>": "<option value=\"\">All accounts</option>",
+  "免费版": "Free",
+  "专业版": "Pro",
+  "专家版": "Expert",
+  "体验版": "Trial",
+  "未知套餐": "Unknown plan",
+  "全部账号": "All accounts",
+  "国际账号": "Global accounts",
+  "国内账号": "CN accounts",
+  "已耗尽账号": "Exhausted accounts",
+  "CodeBuddy 账号管理": "CodeBuddy Accounts Panel",
+  "积分余额 · 国内账号每日签到（09:00/21:00）· 国际账号每日奖励 · 国际账号专家体验包限领一次 · 积分耗尽后自动禁用/删除": "Credit balance · CN daily check-in (09:00/21:00) · Global daily bonus · Global expert pack one-time claim · auto disable/delete on exhaustion",
+  "访问账号数据需要管理密钥。从 CPA 主面板打开时会自动获取密钥。请勿使用错误密钥反复尝试，以免 IP 被封禁。": "A management key is required to access account data. It is picked up automatically when opened from the CPA main panel. Avoid repeated attempts with an incorrect key to prevent an IP ban.",
+  "请输入管理密钥": "Management key",
+  "连接": "Connect",
+  "导入凭据": "Import Credential",
+  "刷新数据": "Refresh Data",
+  "全部签到": "Check-in All",
+  "全部领取": "Claim All",
+  "仅限国际账号 · 每个账号限领一次": "Global only · one-time per account",
+  "仅限国内账号，每日 09:00 / 21:00 自动签到": "CN accounts only, daily at 09:00 / 21:00",
+  "自动签到（国内）": "Auto check-in (CN)",
+  "国际账号每日运行 4 次（08:00/12:00/16:00/20:00），点亮活跃日后次日可获得 30 积分奖励包": "Global accounts, four times daily (08:00/12:00/16:00/20:00). An active day earns a 30-credit bonus pack the following day.",
+  "每日奖励（国际）": "Daily bonus (Global)",
+  "全部": "All",
+  "已耗尽": "Exhausted",
+  "加载中…": "Loading…",
+  "CodeBuddy 用量记录": "CodeBuddy Usage",
+  "今日消耗积分": "Today credit",
+  "今日请求数": "Today requests",
+  "累计消耗积分": "All-time credit",
+  "今天": "Today",
+  "昨天": "Yesterday",
+  "近 7 天": "7 days",
+  "自定义": "Custom",
+  "时间": "Time",
+  "模型": "Model",
+  "输入 Token": "Input tokens",
+  "输出 Token": "Output tokens",
+  "缓存读/写 Token": "Cache read/write tokens",
+  "总 Token": "Total tokens",
+  "消耗积分": "Credit",
+  "正在加载用量…": "Loading usage…",
+  "导入账号凭据 JSON": "Import Credential JSON",
+  "关闭": "Close",
+  "支持嵌套格式": "Accepts nested",
+  "或扁平格式": "or flat",
+  "，保存为": "Saved as",
+  "。": ".",
+  "请粘贴 CodeBuddy 账号凭据 JSON": "Paste CodeBuddy credential JSON",
+  "取消": "Cancel",
+  "导入并保存": "Import and Save",
+  "界面语言": "Interface language"
+};
+let panelLanguage = (()=>{
+  try { const saved=localStorage.getItem(PANEL_LANGUAGE_KEY); if(saved==="en"||saved==="zh-CN")return saved; } catch(_) {}
+  return /^zh/i.test(navigator.language||"")?"zh-CN":"en";
+})();
+function tr(message){return panelLanguage==="en"?(PANEL_EN[message]??message):message}
+function translateStatic(root=document){
+  root.querySelectorAll("[data-i18n]").forEach(el=>{el.textContent=tr(el.dataset.i18n)});
+  for(const attr of ["title","placeholder","aria-label"]){
+    root.querySelectorAll("[data-i18n-"+attr+"]").forEach(el=>el.setAttribute(attr,tr(el.getAttribute("data-i18n-"+attr))));
+  }
+}
+function setPanelLanguage(value){
+  if(value!=="en"&&value!=="zh-CN")return;
+  panelLanguage=value;
+  try{localStorage.setItem(PANEL_LANGUAGE_KEY,value)}catch(_){}
+  applyPanelLanguage(true);
+}
+function applyPanelLanguage(render){
+  document.documentElement.lang=panelLanguage;
+  document.title=tr("CodeBuddy 账号管理");
+  document.getElementById("panelLanguage").value=panelLanguage;
+  translateStatic();
+  // Keep loading buttons disabled and restore their labels in the new language.
+  document.querySelectorAll("button[data-orig]").forEach(btn=>{
+    const temp=document.createElement("div");temp.innerHTML=btn.dataset.orig;
+    translateStatic(temp);btn.dataset.orig=temp.innerHTML;
+    if(btn.querySelector(".spin"))btn.innerHTML=tr('<span class="spin"></span>处理中…');
+  });
+  if(!render)return;
+  const grid=document.getElementById("grid");
+  if(lastAccounts.length){
+    const pending=new Set(Array.from(grid.querySelectorAll("button[data-action]:disabled")).map(btn=>btn.dataset.authIndex+":"+btn.dataset.action));
+    grid.innerHTML=accountsForFilter(lastAccounts).map(card).join("");
+    grid.querySelectorAll("button[data-action]").forEach(btn=>{if(pending.has(btn.dataset.authIndex+":"+btn.dataset.action))busy(btn,true)});
+    bindCardActions(grid);filterRegion(currentFilter,null);renderSummary(lastAccounts);
+  }else{
+    const loading=grid.querySelector(".loading");
+    if(loading){
+      for(const key of ["请先输入管理密钥","暂无 CodeBuddy 账号","加载中…"]){
+        const previous=key==="请先输入管理密钥"?"Please enter the management key first":PANEL_EN[key];
+        if(loading.textContent===key||loading.textContent===previous||loading.textContent===PANEL_EN[key]){loading.textContent=tr(key);break}
+      }
+    }
+  }
+  if(lastServerTime)document.getElementById("svtime").textContent=tr("服务器时间 ")+lastServerTime;
+  if(lastUsageError)renderUsageError(lastUsageError);
+  else if(lastUsageData)renderUsageData(lastUsageData);
+  const selector=document.getElementById("usageAcct");
+  if(selector.options.length)renderUsageAccounts();
+}
+
 
 /* ---------- management key acquisition (3 fallbacks, zero config) ----------
    1) CPA main panel localStorage "cli-proxy-auth" (XOR+base64, same-origin
@@ -333,40 +567,51 @@ function toast(title, kind="ok", detail=""){
   setTimeout(kill, kind==="err"?6000:4000);
   while(box.children.length>5)box.firstChild.remove();
 }
+function currentActionButton(btn){
+  if(!btn||btn.isConnected||!btn.dataset.action)return btn;
+  return document.querySelector('button[data-action="'+CSS.escape(btn.dataset.action)+'"][data-auth-index="'+CSS.escape(btn.dataset.authIndex)+'"]')||btn;
+}
 function busy(btn, on){
+  btn=currentActionButton(btn);
   if(!btn)return;
-  if(on){btn.dataset.orig=btn.innerHTML;btn.disabled=true;btn.innerHTML='<span class="spin"></span>Processing…'}
+  if(on){btn.dataset.orig=btn.innerHTML;btn.disabled=true;btn.innerHTML=tr("<span class=\"spin\"></span>处理中…")}
   else{btn.disabled=false;if(btn.dataset.orig)btn.innerHTML=btn.dataset.orig}
 }
 // Immediate UI: mark a check-in button as done so user doesn't see "签到" flash
 // while load() re-fetches (which can take seconds).
 function markCheckinDone(btn){
+  btn=currentActionButton(btn);
   if(!btn)return;
   btn.disabled=true;
   btn.className="done";
-  btn.innerHTML="Checked in";
-  btn.dataset.orig="Checked in";
+  btn.innerHTML=tr("已签到");
+  btn.dataset.orig=tr("已签到");
 }
 function markTrialDone(btn){
+  btn=currentActionButton(btn);
   if(!btn)return;
   btn.disabled=true;
   btn.className="done";
-  btn.innerHTML="Claimed";
-  btn.dataset.orig="Claimed";
+  btn.innerHTML=tr("已领取");
+  btn.dataset.orig=tr("已领取");
 }
-function fmtRemain(c){if(!c)return "-";const t=(c.total_remain||0)+(c.total_used||0);return c.total_remain+" left / "+t+" total"}
+function fmtRemain(c){if(!c)return "-";const t=(c.total_remain||0)+(c.total_used||0);return c.total_remain+tr(" 剩余 / 共 ")+t+tr(" 积分")}
 function esc(s){return (s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function planLabel(plan){
+  const labels={free:tr("免费版"),pro:tr("专业版"),expert:tr("专家版"),trial:tr("体验版"),unknown:tr("未知套餐")};
+  return labels[String(plan||"").toLowerCase()]||plan||"-";
+}
 function progressHTML(c){
   // total uses size when known; remain = spendable, used = cycle spend.
   // Check-in adds packs → size/remain go UP (grant). Chat spend → used goes UP, remain DOWN.
-  if(!c||(!(c.total_remain||0)&&!(c.total_used||0)&&!(c.total_size||0)))return '<div class="pb"><div class="pb-label"><span>Credits</span><span class="spin"></span>Loading…</span></div><div class="pb-track"><div class="pb-bar" style="width:0%"></div></div></div>';
+  if(!c||(!(c.total_remain||0)&&!(c.total_used||0)&&!(c.total_size||0)))return tr("<div class=\"pb\"><div class=\"pb-label\"><span>积分</span><span class=\"spin\"></span>加载中…</span></div><div class=\"pb-track\"><div class=\"pb-bar\" style=\"width:0%\"></div></div></div>");
   const remain=c.total_remain||0, used=c.total_used||0;
   const size=c.total_size||(remain+used);
   const total=size>0?size:(remain+used);
   const pct=total>0?Math.round(used/total*100):0;
   let color='var(--ok)'; if(pct>60)color='var(--warn)'; if(pct>85)color='var(--err)';
-  const when=c.fetched_at?` · snapshot ${esc(String(c.fetched_at).replace('T',' ').replace('Z',' UTC'))}`:'';
-  return `<div class="pb"><div class="pb-label"><span>Available ${remain}</span><span>Used ${used} · ${pct}%</span></div><div class="pb-track"><div class="pb-bar" style="width:${pct}%;background:${color}"></div></div><div class="pb-meta">Remaining ${remain} · Used ${used} · Pool ${total}${c.pack_count?` · ${c.pack_count} packs`:''}${when}</div></div>`;
+  const when=c.fetched_at?`${tr(" · 数据时间 ")}${esc(String(c.fetched_at).replace('T',' ').replace('Z',' UTC'))}`:'';
+  return `${tr("<div class=\"pb\"><div class=\"pb-label\"><span>可用 ")}${remain}${tr("</span><span>已用 ")}${used} · ${pct}%</span></div><div class="pb-track"><div class="pb-bar" style="width:${pct}%;background:${color}${tr("\"></div></div><div class=\"pb-meta\">剩余 ")}${remain}${tr(" · 已用 ")}${used}${tr(" · 总额度 ")}${total}${c.pack_count?` · ${c.pack_count}${tr(" 个积分包")}`:''}${when}</div></div>`;
 }
 function bindCardActions(root){
   (root||document).querySelectorAll("[data-action]").forEach(btn=>{
@@ -390,37 +635,38 @@ function card(a){
   const isGlobal=region==="global";
   const disabled=!!a.disabled;
   const selected=!!a.selected;
-  const regionBadge=`<span class="badge ${region}">${isGlobal?"Global":"CN"}</span>`;
+  const regionBadge=`<span class="badge ${region}">${isGlobal?tr("国际"):tr("国内")}</span>`;
   // CN: check-in button; Global: claim expert pack button (or Claimed if trial_claimed)
   let actionHTML;
   if(isGlobal){
     if(a.trial_claimed){
-      actionHTML='<button class="done" disabled="disabled">Claimed</button>';
+      actionHTML=tr("<button class=\"done\" disabled=\"disabled\">已领取</button>");
     }else{
-      actionHTML=`<button class="sec" data-action="claim" data-auth-index="${esc(a.auth_index)}">Claim Expert Pack</button>`;
+      actionHTML=`<button class="sec" data-action="claim" data-auth-index="${esc(a.auth_index)}${tr("\">领取专家体验包</button>")}`;
     }
   }else{
     const checked=ci.today_checked_in;
     const btnClass=checked?"done":"sec";
-    const btnText=checked?"Checked in":"Check-in";
+    const btnText=checked?tr("已签到"):tr("签到");
     const btnDisabled=checked?" disabled=\"disabled\"":"";
     actionHTML=`<button class="${btnClass}" data-action="checkin" data-auth-index="${esc(a.auth_index)}"${btnDisabled}>${btnText}</button>`;
   }
   const selectBtn=selected
-    ? `<button class="done" disabled="disabled">In Use</button>`
-    : (disabled?``:`<button class="sec" data-action="select" data-auth-index="${esc(a.auth_index)}">Select</button>`);
-  const refreshBtn=`<button class="sec" data-action="refresh" data-auth-index="${esc(a.auth_index)}" title="Refresh credits">Refresh</button>`;
-  const badges=(selected?`<span class="badge" style="background:var(--acc-ring);color:var(--acc);border-color:var(--acc)">In Use</span>`:"")+(disabled?`<span class="badge disabled">Disabled</span>`:"")+(exhausted?`<span class="badge exhausted">Exhausted</span>`:"")+regionBadge+`<span class="badge ${plan}">${esc(a.plan||"-")}</span>`;
+    ? `${tr("<button class=\"done\" disabled=\"disabled\">使用中</button>")}`
+    : (disabled?``:`<button class="sec" data-action="select" data-auth-index="${esc(a.auth_index)}${tr("\">选择账号</button>")}`);
+  const refreshBtn=`<button class="sec" data-action="refresh" data-auth-index="${esc(a.auth_index)}${tr("\" title=\"刷新积分\">刷新</button>")}`;
+  const badges=(selected?`${tr("<span class=\"badge\" style=\"background:var(--acc-ring);color:var(--acc);border-color:var(--acc)\">使用中</span>")}`:"")+(disabled?`${tr("<span class=\"badge disabled\">已禁用</span>")}`:"")+(exhausted?`${tr("<span class=\"badge exhausted\">已耗尽</span>")}`:"")+regionBadge+`<span class="badge ${plan}">${esc(planLabel(a.plan))}</span>`;
   return `<div class="card${selected?" selected":""}" data-region="${region}" data-auth="${esc(a.auth_index)}">
   <h2>${esc(a.nickname||a.label||a.name)} <span style="display:flex;gap:6px;align-items:center">${badges}</span></h2>
   <div class="uid">${esc(a.uid||"")} · ${esc(a.name||"")}</div>
   ${progressHTML(cr)}
-  ${a.error?`<div class="row"><span class="k">Error</span><span class="v err">${esc(a.error)}</span></div>`:""}
+  ${a.error?`${tr("<div class=\"row\"><span class=\"k\">错误</span><span class=\"v err\">")}${esc(a.error)}</span></div>`:""}
   <div class="actions">${selectBtn}${refreshBtn}${actionHTML}</div>
   </div>`;
 }
 let currentFilter="all";
 let lastAccounts=[];
+let lastServerTime="";
 let activeAuthId="";
 let authFailCount=0;
 let authFailUntil=0;
@@ -455,7 +701,7 @@ function lazyLoadCredits(accounts){
               if(d.error||acct&&acct.error) a.error=d.error||acct.error;
               updateOneCard(a);
             })
-            .catch(()=>{ a.error="Failed to load credits"; updateOneCard(a); });
+            .catch(()=>{ a.error=tr("加载积分失败"); updateOneCard(a); });
         },2000);
       });
   });
@@ -582,29 +828,13 @@ function renderSummary(accounts){
   const total=size>0?size:(remain+used);
   const pct=total>0?Math.round(used/total*100):0;
   let barColor="var(--ok)"; if(pct>60)barColor="var(--warn)"; if(pct>85)barColor="var(--err)";
-  const scopeLabel=currentFilter==="all"?"All accounts":(currentFilter==="global"?"Global accounts":"CN accounts");
+  const scopeLabel={all:tr("全部账号"),global:tr("国际账号"),cn:tr("国内账号"),exhausted:tr("已耗尽账号")}[currentFilter]||tr("全部账号");
   const allTotal=allSize>0?allSize:(allRemain+allUsed);
   box.style.display="block";
-  box.innerHTML=`
-    <div class="summary-hd">
-      <div class="summary-title">Usage Summary · ${esc(scopeLabel)}</div>
-      <div class="summary-meta">${scoped.length} accounts · with data ${knownN} · disabled ${disabledN} · exhausted ${exhaustedN}</div>
-    </div>
-    <div class="summary-grid">
-      <div class="summary-item"><div class="k">Remaining (available)</div><div class="v ok">${remain}</div></div>
-      <div class="summary-item"><div class="k">Used (consumed)</div><div class="v ${pct>85?"err":(pct>60?"warn":"")}">${used}</div></div>
-      <div class="summary-item"><div class="k">Credit Pool</div><div class="v">${total||"-"}</div></div>
-      <div class="summary-item"><div class="k">Used %</div><div class="v ${pct>85?"err":(pct>60?"warn":"ok")}">${total?pct+"%":"-"}</div></div>
-    </div>
-    <div class="pb">
-      <div class="pb-label"><span>Spend progress (used / pool)</span><span>${total?pct+"%":"-"}</span></div>
-      <div class="pb-track"><div class="pb-bar" style="width:${total?pct:0}%;background:${barColor}"></div></div>
-      <div class="pb-meta">Available ${remain} · Used ${used} · Pool ${total||0} (check-ins raise pool &amp; available, not equal to no spend)</div>
-    </div>
-    ${currentFilter==="all"?`
-    <div class="pb-meta" style="margin-top:10px">By region: CN available ${cnRemain} / used ${cnUsed} · Global available ${glRemain} / used ${glUsed}</div>
-    `:`
-    <div class="pb-meta" style="margin-top:10px">All account pools: available ${allRemain} · used ${allUsed} · pool ${allTotal||0}</div>
+  box.innerHTML=`${tr("\n    <div class=\"summary-hd\">\n      <div class=\"summary-title\">积分用量汇总 · ")}${esc(scopeLabel)}</div>
+      <div class="summary-meta">${scoped.length}${tr(" 个账号 · 已获取数据 ")}${knownN}${tr(" 个 · 已禁用 ")}${disabledN}${tr(" 个 · 已耗尽 ")}${exhaustedN}${tr(" 个</div>\n    </div>\n    <div class=\"summary-grid\">\n      <div class=\"summary-item\"><div class=\"k\">剩余积分（可用）</div><div class=\"v ok\">")}${remain}${tr("</div></div>\n      <div class=\"summary-item\"><div class=\"k\">已用积分（消耗）</div><div class=\"v ")}${pct>85?"err":(pct>60?"warn":"")}">${used}${tr("</div></div>\n      <div class=\"summary-item\"><div class=\"k\">积分总额度</div><div class=\"v\">")}${total||"-"}${tr("</div></div>\n      <div class=\"summary-item\"><div class=\"k\">已用比例</div><div class=\"v ")}${pct>85?"err":(pct>60?"warn":"ok")}">${total?pct+"%":"-"}${tr("</div></div>\n    </div>\n    <div class=\"pb\">\n      <div class=\"pb-label\"><span>消耗进度（已用 / 总额度）</span><span>")}${total?pct+"%":"-"}</span></div>
+      <div class="pb-track"><div class="pb-bar" style="width:${total?pct:0}%;background:${barColor}${tr("\"></div></div>\n      <div class=\"pb-meta\">可用 ")}${remain}${tr(" · 已用 ")}${used}${tr(" · 总额度 ")}${total||0}${tr("（签到会增加总额度和可用积分，不代表没有消耗）</div>\n    </div>\n    ")}${currentFilter==="all"?`${tr("\n    <div class=\"pb-meta\" style=\"margin-top:10px\">按地区：国内可用 ")}${cnRemain}${tr(" / 已用 ")}${cnUsed}${tr(" · 国际可用 ")}${glRemain}${tr(" / 已用 ")}${glUsed}</div>
+    `:`${tr("\n    <div class=\"pb-meta\" style=\"margin-top:10px\">全部账号：可用 ")}${allRemain}${tr(" · 已用 ")}${allUsed}${tr(" · 总额度 ")}${allTotal||0}</div>
     `}
   `;
 }
@@ -612,10 +842,10 @@ async function api(path, opts={}){
   const k=getKey();
   if(!k){
     showAuth();
-    throw new Error("Management key required");
+    throw new Error(tr("请先输入管理密钥"));
   }
   if(Date.now()<authFailUntil){
-    throw new Error("Multiple auth failures, try again later (anti IP-ban)");
+    throw new Error(tr("验证多次失败，请稍后再试，以免 IP 被封禁"));
   }
   const r=await fetch(API+path,{...opts,credentials:'omit',headers:{...(opts.headers||{}),...authHeaders(k)}});
   if(r.status===401){
@@ -625,9 +855,9 @@ async function api(path, opts={}){
     if(authFailCount>=3){
       authFailUntil=Date.now()+60000;
       authFailCount=0;
-      throw new Error("Multiple auth failures, check management key and retry in 60s");
+      throw new Error(tr("验证多次失败，请检查管理密钥并在 60 秒后重试"));
     }
-    throw new Error("Invalid or missing management key");
+    throw new Error(tr("管理密钥无效或未提供"));
   }
   if(r.status===403){
     authFailCount++;
@@ -643,13 +873,13 @@ async function api(path, opts={}){
         waitMs=Math.min(Math.max((mins*60+secs)*1000, 30000), 30*60*1000);
       }
       authFailUntil=Date.now()+waitMs;
-      throw new Error(body.trim()||"IP banned, try again later");
+      throw new Error(body.trim()||tr("IP 已被封禁，请稍后再试"));
     }
     if(authFailCount>=3){
       authFailUntil=Date.now()+60000;
       authFailCount=0;
     }
-    throw new Error(body.trim()||"Forbidden (403)");
+    throw new Error(body.trim()||tr("无权访问（403）"));
   }
   authFailCount=0;
   return r.json();
@@ -658,7 +888,7 @@ async function load(force, btn){
   const g=document.getElementById("grid");
   if(!getKey()){
     showAuth();
-    g.innerHTML='<div class="loading">Please enter the management key first</div>';
+    g.innerHTML=tr("<div class=\"loading\">请先输入管理密钥</div>");
     return;
   }
   // Refresh button: loading state + toast on top-right. Original force path
@@ -675,10 +905,11 @@ async function load(force, btn){
       : await api("/accounts");
     document.getElementById("autoToggle").checked=!!d.checkin_auto;
     var _bt=document.getElementById("bonusToggle"); if(_bt) _bt.checked=!!d.daily_bonus;
-    document.getElementById("svtime").textContent="Server time "+(d.server_time||"");
+    lastServerTime=d.server_time||"";
+    document.getElementById("svtime").textContent=tr("服务器时间 ")+lastServerTime;
     if(d.error){
       g.innerHTML='<div class="loading">'+esc(d.error)+"</div>";
-      if(force) toast("Refresh failed", "err", d.error);
+      if(force) toast(tr("刷新失败"), "err", d.error);
       return;
     }
     const accounts=d.accounts||[];
@@ -686,9 +917,9 @@ async function load(force, btn){
     activeAuthId=d.active_auth||"";
     updateFilterCounts(accounts);
     if(!accounts.length){
-      g.innerHTML='<div class="loading">No CodeBuddy accounts</div>';
+      g.innerHTML=tr("<div class=\"loading\">暂无 CodeBuddy 账号</div>");
       renderSummary([]);
-      if(force) toast("Data refreshed", "warn", "No CodeBuddy accounts");
+      if(force) toast(tr("数据已刷新"), "warn", tr("暂无 CodeBuddy 账号"));
       return;
     }
     g.innerHTML=accounts.map(card).join("");
@@ -700,14 +931,14 @@ async function load(force, btn){
     if(force){
       const errN=accounts.filter(a=>a.error).length;
       const life=(d.lifecycle||[]).length;
-      let extra=accounts.length+" accounts";
-      if(errN) extra+=" · "+errN+" with errors";
-      if(life) extra+=" · lifecycle "+life+" items";
-      if(errN) toast("Data refreshed", "warn", extra);
-      else toast("Data refreshed", "ok", extra);
+      let extra=accounts.length+tr(" 个账号");
+      if(errN) extra+=" · "+errN+tr(" 个账号出错");
+      if(life) extra+=tr(" · 自动状态处理 ")+life+tr(" 项");
+      if(errN) toast(tr("数据已刷新"), "warn", extra);
+      else toast(tr("数据已刷新"), "ok", extra);
     }
   }catch(e){
-    if(force) toast("Refresh failed", "err", e.message||String(e));
+    if(force) toast(tr("刷新失败"), "err", e.message||String(e));
     // Keep old cards on force-refresh failure, only toast; first load writes error to grid.
     if(!force || !g.querySelector(".card")){
       g.innerHTML='<div class="loading">'+esc(e.message||String(e))+"</div>";
@@ -717,16 +948,16 @@ async function load(force, btn){
   }
 }
 function checkinResultToast(res, who){
-  const name=res.nickname||who||"Account";
-  if(res.error){toast(name+"：check-in failed","err",res.error);return}
+  const name=res.nickname||who||tr("账号");
+  if(res.error){toast(name+tr("：签到失败"),"err",res.error);return}
   if(res.reason==="global"||(/国际版|不支持/.test(String(res.message||"")))){
-    toast(name+"：Global doesn't need check-in","warn",res.message||"Use Claim Expert Pack instead");return;
+    toast(name+tr("：国际账号无需签到"),"warn",res.message||tr("可领取专家体验包"));return;
   }
   if(res.reason==="already"||(res.skipped&&/already|已签|今日/.test(String(res.message||"")))){
-    toast(name+"：Already checked in today","ok",res.message||"");return;
+    toast(name+tr("：今日已签到"),"ok",res.message||"");return;
   }
-  if(res.success){toast(name+"：Check-in successful","ok","+"+(res.credit??res.daily_credit??"")+" credits · streak "+(res.streak_days??"?")+" days");return}
-  toast(name+"："+(res.message||"Unknown result"),"warn");
+  if(res.success){toast(name+tr("：签到成功"),"ok","+"+(res.credit??res.daily_credit??"")+tr(" 积分 · 连续签到 ")+(res.streak_days??"?")+tr(" 天"));return}
+  toast(name+"："+(res.message||tr("未知结果")),"warn");
 }
 function isCheckinDoneResult(res){
   if(!res||res.error) return false;
@@ -757,7 +988,7 @@ async function checkin(idx, btn){
     // Await reload so card matches server; cache was cleared on backend for this account
     await load(false);
   }catch(e){
-    toast("Check-in request failed","err",e.message);
+    toast(tr("签到请求失败"),"err",e.message);
     busy(btn,false);
   }
 }
@@ -766,14 +997,14 @@ async function selectAuth(idx, btn){
   try{
     const d=await api("/select",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({auth_index:idx})});
     if(d.error){
-      toast("Select failed","err",d.error);
+      toast(tr("选择账号失败"),"err",d.error);
       busy(btn,false);
       return;
     }
     activeAuthId=d.active_auth||idx;
     const who=d.nickname||idx;
-    const region=d.region==="global"?"Global":"CN";
-    toast("Selected","ok",who+" · "+region);
+    const region=d.region==="global"?tr("国际"):tr("国内");
+    toast(tr("已选择账号"),"ok",who+" · "+region);
     // Re-render from local state for instant feedback, then soft reload
     (lastAccounts||[]).forEach(a=>{a.selected=(a.auth_id===activeAuthId);});
     const g=document.getElementById("grid");
@@ -783,7 +1014,7 @@ async function selectAuth(idx, btn){
     }
     filterRegion(currentFilter, null);
   }catch(e){
-    toast("Select failed","err",e.message||String(e));
+    toast(tr("选择账号失败"),"err",e.message||String(e));
   }finally{
     busy(btn,false);
   }
@@ -794,7 +1025,7 @@ async function refreshCredits(idx, btn){
     const d=await api(`/credits?auth_index=${encodeURIComponent(idx)}`);
     const acct=(d.accounts||[])[0]||d;
     if(d.error||acct&&acct.error){
-      toast("Refresh failed","err",d.error||(acct&&acct.error)||"Unknown error");
+      toast(tr("刷新失败"),"err",d.error||(acct&&acct.error)||tr("未知错误"));
       busy(btn,false);
       return;
     }
@@ -810,9 +1041,9 @@ async function refreshCredits(idx, btn){
     }
     const remain=acct&&acct.credits?acct.credits.total_remain:"?";
     const who=acct&&acct.nickname?acct.nickname:idx;
-    toast("Credits refreshed","ok",who+" · remaining "+remain);
+    toast(tr("积分已刷新"),"ok",who+tr(" · 剩余积分 ")+remain);
   }catch(e){
-    toast("Refresh failed","err",e.message||String(e));
+    toast(tr("刷新失败"),"err",e.message||String(e));
   }finally{
     busy(btn,false);
   }
@@ -830,22 +1061,22 @@ async function checkinAll(btn){
     const skippedGlobal=Number(s.skipped_global||0);
     const eligible=Number(s.eligible??(ok+fail))||0;
     const detailParts=[];
-    if(skippedGlobal) detailParts.push("Skipped Global "+skippedGlobal);
-    if(already) detailParts.push("Already checked in "+already);
-    if(eligible) detailParts.push("Pending "+eligible);
+    if(skippedGlobal) detailParts.push(tr("已跳过国际账号 ")+skippedGlobal);
+    if(already) detailParts.push(tr("今日已签到 ")+already);
+    if(eligible) detailParts.push(tr("待签到 ")+eligible);
     const detail=detailParts.join(" · ");
-    if(d.error){toast("Bulk check-in failed","err",d.error)}
+    if(d.error){toast(tr("批量签到失败"),"err",d.error)}
     else if(fail){
       const errDetail=rs.filter(x=>x.error).map(x=>(x.nickname||"")+": "+x.error).join("; ");
-      toast("Bulk check-in: "+ok+" ok / "+fail+" failed"+(already?" / "+already+" already":""),"err",errDetail||detail);
+      toast(tr("批量签到：")+ok+tr(" 个成功 / ")+fail+tr(" 个失败")+(already?" / "+already+tr(" 个已完成"):""),"err",errDetail||detail);
     }else if(ok){
-      toast("Bulk check-in: "+ok+" ok"+(already?" / "+already+" already":""),"ok",detail);
+      toast(tr("批量签到：")+ok+tr(" 个成功")+(already?" / "+already+tr(" 个已完成"):""),"ok",detail);
     }else if(already||skippedGlobal){
-      toast("Nothing to check in","ok",detail||"CN checked today · Global skipped");
+      toast(tr("无需签到"),"ok",detail||tr("国内账号今日已签到 · 已跳过国际账号"));
     }else if(!rs.length && !eligible){
-      toast("No CN accounts need check-in","warn",detail||"Global accounts don't check in");
+      toast(tr("没有需要签到的国内账号"),"warn",detail||tr("国际账号无需签到"));
     }else{
-      toast("No accounts need check-in","warn",detail);
+      toast(tr("没有需要签到的账号"),"warn",detail);
     }
     // Mark CN check-in buttons done immediately when any success/already
     if(ok||already){
@@ -857,7 +1088,7 @@ async function checkinAll(btn){
       });
     }
     await load(false);
-  }catch(e){toast("Bulk check-in failed","err",e.message)}
+  }catch(e){toast(tr("批量签到失败"),"err",e.message)}
   // load() re-renders grid; only restore toolbar button
   busy(btn,false);
 }
@@ -865,19 +1096,19 @@ async function claimTrial(idx, btn){
   busy(btn,true);
   try{
     const d=await api("/trial",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({auth_index:idx})});
-    if(d.error){toast("Claim failed","err",d.error);busy(btn,false);}
-    else if(d.already_claimed){toast((d.nickname||"Account")+"：Already claimed","warn",d.message||"");markTrialDone(btn);}
-    else if(d.success){toast((d.nickname||"Account")+"：Claimed","ok","+250 credits · 14 days");markTrialDone(btn);}
-    else{toast((d.nickname||"Account")+"："+(d.message||"Unknown"),"warn");busy(btn,false);}
+    if(d.error){toast(tr("领取失败"),"err",d.error);busy(btn,false);}
+    else if(d.already_claimed){toast((d.nickname||tr("账号"))+tr("：已领取过"),"warn",d.message||"");markTrialDone(btn);}
+    else if(d.success){toast((d.nickname||tr("账号"))+tr("：领取成功"),"ok",tr("+250 积分 · 有效期 14 天"));markTrialDone(btn);}
+    else{toast((d.nickname||tr("账号"))+"："+(d.message||tr("未知结果")),"warn");busy(btn,false);}
     await load(false);
-  }catch(e){toast("Claim request failed","err",e.message);busy(btn,false);}
+  }catch(e){toast(tr("领取请求失败"),"err",e.message);busy(btn,false);}
 }
 async function claimTrialAll(btn){
   busy(btn,true);
   try{
     const d=await api("/accounts");
     const accounts=(d.accounts||[]).filter(a=>(a.region||"cn")==="global"&&!a.trial_claimed);
-    if(!accounts.length){toast("No accounts to claim","warn");busy(btn,false);return;}
+    if(!accounts.length){toast(tr("没有可领取的账号"),"warn");busy(btn,false);return;}
     let ok=0,fail=0,already=0;
     for(const a of accounts){
       try{
@@ -885,18 +1116,18 @@ async function claimTrialAll(btn){
         if(r.success)ok++;else if(r.already_claimed||r.error)already++;else fail++;
       }catch(e){fail++;}
     }
-    if(fail)toast("Bulk claim: "+ok+" ok / "+already+" already / "+fail+" failed","err");
-    else if(ok)toast("Bulk claim: "+ok+" ok"+(already?" / "+already+" already":""),"ok");
-    else toast("All accounts already claimed","warn");
+    if(fail)toast(tr("批量领取：")+ok+tr(" 个成功 / ")+already+tr(" 个已领取 / ")+fail+tr(" 个失败"),"err");
+    else if(ok)toast(tr("批量领取：")+ok+tr(" 个成功")+(already?" / "+already+tr(" 个已完成"):""),"ok");
+    else toast(tr("所有账号均已领取"),"warn");
     await load(false);
-  }catch(e){toast("Bulk claim failed","err",e.message)}
+  }catch(e){toast(tr("批量领取失败"),"err",e.message)}
   busy(btn,false);
 }
 async function toggleAuto(on){
-  try{const d=await api("/checkin/config",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({enabled:on})});toast("Auto check-in "+(d.checkin_auto?"enabled ✅":"disabled ⏸"),"ok")}catch(e){toast("Settings failed","err",e.message)}
+  try{const d=await api("/checkin/config",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({enabled:on})});toast(tr("自动签到")+(d.checkin_auto?tr("已开启 ✅"):tr("已关闭 ⏸")),"ok")}catch(e){toast(tr("设置失败"),"err",e.message)}
 }
 async function toggleBonus(on){
-  try{const d=await api("/dailybonus/config",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({enabled:on})});toast("Daily bonus "+(d.daily_bonus?"enabled ✅":"disabled ⏸"),"ok")}catch(e){toast("Settings failed","err",e.message)}
+  try{const d=await api("/dailybonus/config",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({enabled:on})});toast(tr("每日奖励")+(d.daily_bonus?tr("已开启 ✅"):tr("已关闭 ⏸")),"ok")}catch(e){toast(tr("设置失败"),"err",e.message)}
 }
 function openImportModal(){
   const m=document.getElementById("importModal");
@@ -912,19 +1143,19 @@ function onImportMaskClick(e){
 }
 async function importAuth(btn){
   const raw=(document.getElementById("importRaw").value||"").trim();
-  if(!raw){toast("Please paste credential JSON","warn");return}
+  if(!raw){toast(tr("请先粘贴账号凭据 JSON"),"warn");return}
   busy(btn,true);
   try{
     let payload={raw};
     try{payload={json:JSON.parse(raw)}}catch(_){}
     const d=await api("/import",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
     if(d.success){
-      toast("Import success","ok",(d.nickname||d.uid||"")+ " → "+(d.file||d.name||""));
+      toast(tr("导入成功"),"ok",(d.nickname||d.uid||"")+ " → "+(d.file||d.name||""));
       document.getElementById("importRaw").value="";
       closeImportModal();
       load(true);
-    }else toast("Import failed","err",d.error||"unknown");
-  }catch(e){toast("Import request failed","err",e.message)}
+    }else toast(tr("导入失败"),"err",d.error||tr("未知错误"));
+  }catch(e){toast(tr("导入请求失败"),"err",e.message)}
   busy(btn,false);
 }
 document.getElementById("keyInput").addEventListener("keydown",e=>{if(e.key==="Enter")saveKey()});
@@ -935,6 +1166,8 @@ document.addEventListener("keydown",e=>{
 const usageParams={range:"today",account:"",from:"",to:""};
 let usageAccounts=[];
 let usageRecords=[];
+let lastUsageData=null;
+let lastUsageError="";
 let usageTimer=null;
 let usageKeyOk=null;
 
@@ -964,10 +1197,10 @@ function usageRangeLabel(){
   const now=new Date();
   const days=usageParams.range==="today"?0:usageParams.range==="yesterday"?1:7;
   const from=new Date(now.getFullYear(),now.getMonth(),now.getDate()-days);
-  if(usageParams.range==="custom")return (usageParams.from||"earliest")+" ~ "+(usageParams.to||"now");
+  if(usageParams.range==="custom")return (usageParams.from||tr("最早记录"))+" ~ "+(usageParams.to||tr("现在"));
   if(usageParams.range==="yesterday")return fmtDay(from)+" ~ "+fmtDay(new Date(now.getFullYear(),now.getMonth(),now.getDate()-1));
-  if(usageParams.range==="7d")return "last 7 days (from "+fmtDay(from)+")";
-  return fmtDay(now)+" (today)";
+  if(usageParams.range==="7d")return tr("近 7 天（自 ")+fmtDay(from)+tr(" 起）");
+  return fmtDay(now)+tr("（今天）");
 }
 function setUsageRange(range,btn){
   usageParams.range=range;
@@ -976,9 +1209,9 @@ function setUsageRange(range,btn){
     btn.classList.add("active");
   }
   if(range==="custom"){
-    const f=prompt("From (YYYY-MM-DD), empty = earliest");
+    const f=prompt(tr("开始日期（YYYY-MM-DD），留空表示最早记录"));
     if(f!==null)usageParams.from=f.trim();
-    const t=prompt("To (YYYY-MM-DD), empty = now");
+    const t=prompt(tr("结束日期（YYYY-MM-DD），留空表示现在"));
     if(t!==null)usageParams.to=t.trim();
   }
   loadUsage();
@@ -991,6 +1224,36 @@ function usageSum(recs){
     if(r.timestamp>last)last=r.timestamp;
   });
   return {tc,tr,last};
+}
+function renderUsageData(d){
+  const box=document.getElementById("usageSummaryBox");
+  const tbody=document.getElementById("usageBody");
+  const meta=document.getElementById("usageMeta");
+  document.getElementById("usageRangeLabel").textContent=usageRangeLabel();
+    const recs=d.records||[];
+    const t=d.totals||{};
+    usageRecords=recs;
+    usageKeyOk=true;
+    const hdrCredit=(t.range_credit!=null&&(usageParams.range!=="today"&&usageParams.account))?t.range_credit:(usageParams.range==="today"&&!usageParams.account)?t.today_credit:t.range_credit!=null?t.range_credit:t.today_credit;
+    const hdrReq=(t.range_requests!=null&&(usageParams.range!=="today"||usageParams.account))?t.range_requests:(usageParams.range==="today"&&!usageParams.account)?t.today_requests:(t.range_requests!=null?t.range_requests:t.today_requests);
+    if(box)box.innerHTML=`<div class="usage-item"><div class="k">${esc(usageRangeLabel())}${tr(" 消耗积分</div><div class=\"v warn\">")}${fmtCred(hdrCredit)}${tr("</div></div><div class=\"usage-item\"><div class=\"k\">请求数</div><div class=\"v\">")}${hdrReq||0}${tr("</div></div><div class=\"usage-item\"><div class=\"k\">累计消耗积分</div><div class=\"v\">")}${fmtCred(t.total_credit)}</div></div>`;
+    if(tbody){
+      if(!recs.length){
+        tbody.innerHTML=`${tr("<tr><td colspan=\"8\"><div class=\"usage-loading\">此时间范围内暂无请求</div></td></tr>")}`;
+      }else{
+        tbody.innerHTML=recs.map(r=>{
+          const fail=r.failed?tr("<span class=\"badge exhausted\" style=\"margin-left:6px\">失败</span>"):"";
+          const model=(r.model||"")+(r.alias&&r.alias!==r.model?` <span class="muted">(${esc(r.alias)})</span>`:"");
+          return `<tr><td>${esc(fmtDT(r.timestamp))}</td><td>${esc(r.nickname||r.auth_index||"-")}${fail}</td><td>${esc(model)}</td><td class="num">${fmtTok(r.input_tokens)}</td><td class="num">${fmtTok(r.output_tokens)}</td><td class="num">${fmtTok(r.cache_read_tokens)} / ${fmtTok(r.cache_write_tokens)}</td><td class="num">${fmtTok(r.total_tokens)}</td><td class="num cr">${fmtCred(r.credit)}</td></tr>`;
+        }).join("");
+      }
+    }
+    const s=usageSum(recs);
+    if(meta)meta.textContent=(recs.length?tr("显示 ")+recs.length+tr(" 条 / 共 ")+((d.total_records!=null)?d.total_records:recs.length)+tr(" 条 · "):"")+tr("已显示记录消耗积分 ")+fmtCred(s.tc)+tr(" · 成功请求数 ")+s.tr+(s.last?tr(" · 最近请求 ")+fmtDT(s.last):"");
+}
+function renderUsageError(message){
+  const tbody=document.getElementById("usageBody");
+  if(tbody)tbody.innerHTML=`${tr("<tr><td colspan=\"8\"><div class=\"usage-loading\">无法加载用量：")}${esc(message)}</div></td></tr>`;
 }
 async function loadUsage(){
   const box=document.getElementById("usageSummaryBox");
@@ -1006,44 +1269,33 @@ async function loadUsage(){
   try{
     const d=await api("/usage"+q);
     if(d.error)throw new Error(d.error);
-    const recs=d.records||[];
-    const t=d.totals||{};
-    usageRecords=recs;
-    usageKeyOk=true;
-    const hdrCredit=(t.range_credit!=null&&(usageParams.range!=="today"&&usageParams.account))?t.range_credit:(usageParams.range==="today"&&!usageParams.account)?t.today_credit:t.range_credit!=null?t.range_credit:t.today_credit;
-    const hdrReq=(t.range_requests!=null&&(usageParams.range!=="today"||usageParams.account))?t.range_requests:(usageParams.range==="today"&&!usageParams.account)?t.today_requests:(t.range_requests!=null?t.range_requests:t.today_requests);
-    if(box)box.innerHTML=`<div class="usage-item"><div class="k">${esc(usageRangeLabel())} credit</div><div class="v warn">${fmtCred(hdrCredit)}</div></div><div class="usage-item"><div class="k">Requests</div><div class="v">${hdrReq||0}</div></div><div class="usage-item"><div class="k">All-time credit</div><div class="v">${fmtCred(t.total_credit)}</div></div>`;
-    if(tbody){
-      if(!recs.length){
-        tbody.innerHTML=`<tr><td colspan="8"><div class="usage-loading">No requests in this range</div></td></tr>`;
-      }else{
-        tbody.innerHTML=recs.map(r=>{
-          const fail=r.failed?"<span class=\"badge exhausted\" style=\"margin-left:6px\">fail</span>":"";
-          const model=(r.model||"")+(r.alias&&r.alias!==r.model?` <span class="muted">(${esc(r.alias)})</span>`:"");
-          return `<tr><td>${esc(fmtDT(r.timestamp))}</td><td>${esc(r.nickname||r.auth_index||"-")}${fail}</td><td>${esc(model)}</td><td class="num">${fmtTok(r.input_tokens)}</td><td class="num">${fmtTok(r.output_tokens)}</td><td class="num">${fmtTok(r.cache_read_tokens)} / ${fmtTok(r.cache_write_tokens)}</td><td class="num">${fmtTok(r.total_tokens)}</td><td class="num cr">${fmtCred(r.credit)}</td></tr>`;
-        }).join("");
-      }
-    }
-    const s=usageSum(recs);
-    if(meta)meta.textContent=(recs.length?"Showing "+recs.length+" of "+((d.total_records!=null)?d.total_records:recs.length)+" · ":"")+"credit in range "+fmtCred(s.tc)+" · requests "+s.tr+(s.last?" · last "+fmtDT(s.last):"");
+    lastUsageError="";
+    lastUsageData=d;
+    renderUsageData(d);
   }catch(e){
     usageKeyOk=false;
-    if(tbody)tbody.innerHTML=`<tr><td colspan="8"><div class="usage-loading">Usage unavailable: ${esc(e.message||String(e))}</div></td></tr>`;
+    lastUsageError=e.message||String(e);
+    renderUsageError(lastUsageError);
   }
+}
+function renderUsageAccounts(){
+  const sel=document.getElementById("usageAcct"), selected=sel.value;
+  sel.innerHTML='<option value="">'+tr("全部账号")+'</option>';
+  usageAccounts.forEach(a=>{
+    const option=document.createElement("option");option.value=a.auth_index||"";
+    option.textContent=(a.nickname||a.label||a.auth_index)+" · "+tr((a.region||"cn")==="global"?"国际":"国内");
+    sel.appendChild(option);
+  });
+  sel.value=selected;
 }
 async function initUsage(){
   const sel=document.getElementById("usageAcct");
   if(sel&&!sel.options.length){
-    sel.innerHTML='<option value="">All accounts</option>';
+    sel.innerHTML=tr("<option value=\"\">全部账号</option>");
     try{
       const d=await api("/accounts");
-      (d.accounts||[]).forEach(a=>{
-        const o=document.createElement("option");
-        o.value=a.auth_index||"";
-        o.textContent=(a.nickname||a.label||a.auth_index)+" · "+(a.region||"cn").toUpperCase();
-        sel.appendChild(o);
-      });
       usageAccounts=d.accounts||[];
+      renderUsageAccounts();
     }catch(e){/* accounts endpoint may be down; keep All only */}
   }
   loadUsage();
@@ -1051,9 +1303,12 @@ async function initUsage(){
   if(usageTimer)clearInterval(usageTimer);
   usageTimer=setInterval(()=>{if(vis()&&usageKeyOk!==false)loadUsage()},5000);
 }
-function fmtLocal(s){try{return new Date(s).toLocaleString()}catch(e){return s}}
+function fmtLocal(s){try{return new Date(s).toLocaleString(panelLanguage)}catch(e){return s}}
 /* Start usage polling after initial account load (usage is local & cheap). */
 window.addEventListener("load",()=>setTimeout(()=>{try{initUsage()}catch(e){}},400));
+
+document.getElementById("panelLanguage").addEventListener("change",event=>setPanelLanguage(event.target.value));
+applyPanelLanguage(false);
 
 /* Start theme sync watcher (parent MutationObserver + standalone prefers-color-scheme listener). */
 if(window.__wbThemeSync)window.__wbThemeSync();

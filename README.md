@@ -1,7 +1,13 @@
 # CodeBuddy Intl CPA
 
+[简体中文](README.zh-CN.md) | English
+
 A **CLIProxyAPI (CPA)** provider plugin for **Tencent CodeBuddy**, built for **Global (Intl)
 accounts** — including the daily credit reward that other CPA plugins skip.
+
+The account panel supports **中文 / English** via its top-right language selector.
+Changes apply immediately and are remembered in the current browser. The initial
+language follows the browser's language.
 
 > **On the name.** The project is `codebuddy-intl-cpa`. The plugin it ships keeps the internal
 > id `workbuddy` — the file `workbuddy.so`, the auth type `workbuddy`, the credential files
