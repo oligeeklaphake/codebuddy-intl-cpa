@@ -390,7 +390,7 @@ func wbRegistration() registration {
 			Name:             pluginDisplayName,
 			Version:          version,
 			Author:           "CodeBuddy: zidanefaqih, Sliverkiss, lovingfish; Trae: connectedGraph; integration: oligeeklaphake",
-			GitHubRepository: "https://github.com/oligeeklaphake/codebuddy-intl-cpa",
+			GitHubRepository: "https://github.com/zidanefaqih/codebuddy-intl-cpa",
 			Logo:             pluginLogoURL,
 			ConfigFields: []pluginapi.ConfigField{
 				{Name: "trae_checkin_auto", Type: pluginapi.ConfigFieldTypeBoolean, Description: "Trae: enable daily automatic check-in (default true)."},

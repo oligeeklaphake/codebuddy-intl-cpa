@@ -29,7 +29,7 @@ go vet ./...
 go build -buildmode=c-shared -o dist/windows/amd64/workbuddy.dll .
 go build -o dist/windows/amd64/migrate-trae.exe ./cmd/migrate-trae
 Set-Location ..
-./scripts/install-unified.ps1 -CPAHome 'D:\APP\AI\CLIProxyAPI_8.0.23_windows_amd64' -AuthDir 'C:\Users\Blueno\.cli-proxy-api'
+./scripts/install-unified.ps1 -CPAHome 'C:\path\to\CLIProxyAPI' -AuthDir (Join-Path $env:USERPROFILE '.cli-proxy-api')
 ```
 
 安装器会停止对应路径的 CPA，备份配置、原 DLL 和待迁移凭证，迁移 Trae 配置与
@@ -45,8 +45,8 @@ Trae 配置迁入 `plugins.configs.workbuddy.trae_*`，包括 `trae_checkin_auto
 `migration/manifest.json` 恢复对应备份文件，再恢复原 workbuddy DLL 和 trae DLL。
 备份包含凭证，请和原凭证目录一样保管。
 
-这是独立整合版本。CodeBuddy 官方单渠道更新包会覆盖整合功能，使用此安装器更新。
-内置 CodeBuddy 页的更新提示显示当前整合版本。
+本地 `+unified-trae.*` 构建使用此安装器更新；CodeBuddy 单渠道更新包会覆盖整合功能。
+该本地构建的更新提示显示当前整合版本。上游采用正式版本号后，恢复原有更新检查。
 
 ## Verification
 

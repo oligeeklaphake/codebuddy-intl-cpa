@@ -48,7 +48,7 @@ func handleUnifiedManagement(req pluginapi.ManagementRequest, base string) ([]by
 		out, e := okEnvelope(mgmtJSONResponse(200, unifiedUsageQuery(req)))
 		return out, true, e
 	}
-	if sub == "/update/check" && req.Method == http.MethodGet {
+	if sub == "/update/check" && req.Method == http.MethodGet && strings.Contains(version, "+unified-trae.") {
 		// This integration is maintained independently. An official CodeBuddy
 		// binary would remove the embedded Trae engine.
 		out, e := okEnvelope(mgmtJSONResponse(200, updateCheckResponse{Current: version, Latest: version, Available: false, Changelog: "Unified local build; update with the unified installer."}))

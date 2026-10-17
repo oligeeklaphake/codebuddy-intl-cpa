@@ -2,6 +2,12 @@
 
 Build: `0.9.7+unified-trae.0.1.6`, Windows amd64, CPA 8.0.23.
 
+The deployed binary below was built from integration commit `f58889e`.
+The upstream submission additionally restores the upstream repository metadata,
+limits the local-build update override to `+unified-trae.*`, and makes the
+installation example portable. Those submission changes were checked with the
+Go regression suite and vet; the installed binary was left in place.
+
 DLL SHA-256:
 `61693A2A050052AE897ED6B2CD0DBFBDA7DDABC9D5BAD3239505868EB4EBE879`
 
